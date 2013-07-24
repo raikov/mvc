@@ -3,12 +3,12 @@
 defined('T') or die("You cannot call this file on its own. Include index.php first.");
 
 if (!defined('__DIR__')) {
-	define('__DIR__', dirname(__FILE__));
+    define('__DIR__', dirname(__FILE__));
 }
- 
+
 
 if (version_compare(phpversion(), "5.3.0", "<=")) {
-  exit("Error: You must have PHP version 5.3 or greater to run Microweber");
+    exit("Error: You must have PHP version 5.3 or greater to run Microweber");
 }
 
 
@@ -17,82 +17,77 @@ if (version_compare(phpversion(), "5.3.0", "<=")) {
 * Loads up classes with namespaces
 * Add more dicectories with set_include_path
  */
-set_include_path(BASE_DIR . 'classes' . DS . PATH_SEPARATOR .BASE_DIR . 'controllers' . DS . PATH_SEPARATOR .   get_include_path());
+set_include_path(BASE_DIR . 'classes' . DS . PATH_SEPARATOR . BASE_DIR . 'controllers' . DS . PATH_SEPARATOR . get_include_path());
 
-function mw_autoload($className) {
-	$className = ltrim($className, '\\');
-	$fileName = '';
-	$namespace = '';
+function mw_autoload($className)
+{
+    $className = ltrim($className, '\\');
+    $fileName = '';
+    $namespace = '';
 
-	if ($lastNsPos = strripos($className, '\\')) {
-		$namespace = substr($className, 0, $lastNsPos);
-		$className = substr($className, $lastNsPos + 1);
-		$fileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-	}
+    if ($lastNsPos = strripos($className, '\\')) {
+        $namespace = substr($className, 0, $lastNsPos);
+        $className = substr($className, $lastNsPos + 1);
+        $fileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+    }
 
 
+    if ($className != '') {
 
-
-	if ($className != '') {
-
-       // set_include_path( MODULES_DIR .strtolower($className). PATH_SEPARATOR . get_include_path());
-
+        // set_include_path( MODULES_DIR .strtolower($className). PATH_SEPARATOR . get_include_path());
 
 
         $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
 
-		require $fileName;
-	}
+        require $fileName;
+    }
 
 }
 
 spl_autoload_register('mw_autoload');
- 
 
 
+function url_segment($k = -1, $page_url = false)
+{
+    //static $u;
+    $u = false;
+    if ($page_url == false or $page_url == '') {
+        $u1 = curent_url();
+    } else {
 
-function url_segment($k = -1, $page_url = false) {
-	//static $u;
-	$u = false;
-	if ($page_url == false or $page_url == '') {
-		$u1 = curent_url();
-	} else {
+        $u1 = $page_url;
+    }
 
-		$u1 = $page_url;
-	}
+    //if ($u == false) {
 
-	//if ($u == false) {
-
-	$u2 = site_url();
-
-
+    $u2 = site_url();
 
 
+    $u1 = rtrim($u1, '\\');
+    $u1 = rtrim($u1, '/');
 
-	$u1 = rtrim($u1, '\\');
-	$u1 = rtrim($u1, '/');
+    $u2 = rtrim($u2, '\\');
+    $u2 = rtrim($u2, '/');
+    $u2 = reduce_double_slashes($u2);
+    $u1 = reduce_double_slashes($u1);
+    $u2 = rawurldecode($u2);
+    $u1 = rawurldecode($u1);
+    $u1 = str_replace($u2, '', $u1);
 
-	$u2 = rtrim($u2, '\\');
-	$u2 = rtrim($u2, '/');
-	$u2 = reduce_double_slashes($u2);
-	$u1 = reduce_double_slashes($u1);
-	$u2 = rawurldecode($u2);
- 	$u1 = rawurldecode($u1);
-	$u1 = str_replace($u2, '', $u1);
+    if (!isset($u) or $u == false) {
+        $u = explode('/', trim(preg_replace('/([^\w\:\-\.\%\/])/i', '', current(explode('?', $u1, 2))), '/'));
 
-	if (!isset($u) or $u == false) {
-		$u = explode('/', trim(preg_replace('/([^\w\:\-\.\%\/])/i', '', current(explode('?', $u1, 2))), '/'));
-
-	}
-	//}
+    }
+    //}
 
 
-	return $k != -1 ? val_or_null($u[$k]) : $u;
+    return $k != -1 ? val_or_null($u[$k]) : $u;
 
 }
 
-function val_or_null(&$v, $d = NULL) {
-	return isset($v) ? $v : $d;
+function val_or_null(&$v, $d = NULL)
+{
+    return isset($v) ? $v : $d;
 }
 
 
@@ -181,12 +176,10 @@ function site_url($add_string = false)
         $mw_site_url = implode('/', $url_segs);
 
     }
-	
-	 
+
+
     return $mw_site_url . $add_string;
 }
-
-
 
 
 /**
@@ -194,74 +187,78 @@ function site_url($add_string = false)
  *
  * @return string the url string
  */
-function url_string($skip_ajax = false) {
-	if ($skip_ajax == true) {
-		$url = curent_url($skip_ajax);
-	} else {
-		$url = false;
-	}
-	//static $u1;
-	//if ($u1 == false) {
-	$u1 = implode('/', url_segment(-1, $url));
-	//}
-	return $u1;
+function url_string($skip_ajax = false)
+{
+    if ($skip_ajax == true) {
+        $url = curent_url($skip_ajax);
+    } else {
+        $url = false;
+    }
+    //static $u1;
+    //if ($u1 == false) {
+    $u1 = implode('/', url_segment(-1, $url));
+    //}
+    return $u1;
 }
 
-function curent_url($skip_ajax = false, $no_get = false) {
-	$u = false;
-	if ($skip_ajax == true) {
-		$is_ajax = isAjax();
+function curent_url($skip_ajax = false, $no_get = false)
+{
+    $u = false;
+    if ($skip_ajax == true) {
+        $is_ajax = isAjax();
 
-		if ($is_ajax == true) {
-			if ($_SERVER['HTTP_REFERER'] != false) {
-				$u = $_SERVER['HTTP_REFERER'];
-			} else {
+        if ($is_ajax == true) {
+            if ($_SERVER['HTTP_REFERER'] != false) {
+                $u = $_SERVER['HTTP_REFERER'];
+            } else {
 
-			}
-		}
-	}
+            }
+        }
+    }
 
-	if ($u == false) {
+    if ($u == false) {
 
-		if (!isset($_SERVER['REQUEST_URI'])) {
-			$serverrequri = $_SERVER['PHP_SELF'];
-		} else {
-			$serverrequri = $_SERVER['REQUEST_URI'];
-		}
+        if (!isset($_SERVER['REQUEST_URI'])) {
+            $serverrequri = $_SERVER['PHP_SELF'];
+        } else {
+            $serverrequri = $_SERVER['REQUEST_URI'];
+        }
 
-		$s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
-		
-		$protocol = 'http';
-		$port = 80;
-		if(isset($_SERVER["SERVER_PROTOCOL"])){
-		$protocol = strleft(strtolower($_SERVER["SERVER_PROTOCOL"]), "/") . $s;
-		}
-		if(isset($_SERVER["SERVER_PORT"])){
-		$port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":" . $_SERVER["SERVER_PORT"]);
-		}
-		 if(isset($_SERVER["SERVER_PORT"])){
-		$u = $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . $serverrequri;
-		} elseif(isset($_SERVER["HOSTNAME"])){ 
-		 $u = $protocol . "://" . $_SERVER['HOSTNAME'] . $port . $serverrequri;
-		}
-		
-	}
+        $s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
 
-	if ($no_get == true) {
+        $protocol = 'http';
+        $port = 80;
+        if (isset($_SERVER["SERVER_PROTOCOL"])) {
+            $protocol = strleft(strtolower($_SERVER["SERVER_PROTOCOL"]), "/") . $s;
+        }
+        if (isset($_SERVER["SERVER_PORT"])) {
+            $port = ($_SERVER["SERVER_PORT"] == "80") ? "" : (":" . $_SERVER["SERVER_PORT"]);
+        }
+        if (isset($_SERVER["SERVER_PORT"])) {
+            $u = $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . $serverrequri;
+        } elseif (isset($_SERVER["HOSTNAME"])) {
+            $u = $protocol . "://" . $_SERVER['HOSTNAME'] . $port . $serverrequri;
+        }
 
-		$u = strtok($u, '?');
-	}
+    }
 
-	return $u;
+    if ($no_get == true) {
+
+        $u = strtok($u, '?');
+    }
+
+    return $u;
 }
 
-function isAjax() {
-	return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
+function isAjax()
+{
+    return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'));
 }
 
 
-function strleft($s1, $s2) {
-	return substr($s1, 0, strpos($s1, $s2));
+function strleft($s1, $s2)
+{
+    return substr($s1, 0, strpos($s1, $s2));
 }
 
 

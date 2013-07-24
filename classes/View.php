@@ -1,80 +1,83 @@
 <?php
 
 // Handles working with HTML output templates
-class View {
+class View
+{
 
-	var $v;
+    var $v;
 
-	function __construct($v) {
-		$this -> v = $v;
-	}
+    function __construct($v)
+    {
+        $this->v = $v;
+    }
 
 
+    function set($var, $val)
+    {
+        $this->$var = $val;
+
+    }
+
+    //same as above
+    function assign($var, $val)
+    {
+        $this->$var = $val;
+    }
+
+    function set_array($a)
+    {
+
+        foreach ($a as $k => $v) {
+            $this->$k = $v;
+        }
+    }
 
 
-	function set($var, $val) {
-	$this -> $var = $val;
-		 
-	}
-	//same as above
-	function assign($var, $val) {
-		$this -> $var = $val;
-	}
+    function __get_vars()
+    {
 
-	function set_array($a) {
-		
-		foreach ($a as $k => $v){
-			$this -> $k = $v;
-		}
-	}
+        ob_start();
+        // write content
+        extract((array)$this);
 
-	
+        $file_dir = dirname($this->v) . DS;
 
-	function __get_vars() {
+        require ($this->v);
 
-		ob_start();
-		// write content
-		extract((array)$this);
+        $content = ob_get_clean();
+        unset($content);
 
-		//$old_dir = getcwd();
-		$file_dir = dirname($this -> v) . DS;
- 
-		require ($this -> v);
+        $defined_vars = array();
+        $var_names = array_keys(get_defined_vars());
 
-		$content = ob_get_clean();
-		unset($content);
-		//ob_end_clean();
+        foreach ($var_names as $var_name) {
+            if ($var_name != 'defined_vars' and $var_name != 'this') {
+                $defined_vars[$var_name] = $$var_name;
+            }
+        }
 
-		$defined_vars = array();
-		$var_names = array_keys(get_defined_vars());
+        return $defined_vars;
+    }
 
-		foreach ($var_names as $var_name) {
-			if ($var_name != 'defined_vars' and $var_name != 'this') {
-				$defined_vars[$var_name] = $$var_name;
-			}
-		}
-		//chdir($old_dir);
-		return $defined_vars;
-	}
-	function output() {
-	return $this->__toString();
+    function output()
+    {
+        return $this->__toString();
 
-	}
-	function __toString() {
+    }
+
+    function __toString()
+    {
         extract((array)$this);
 
         ob_start();
 
+        $file_dir = dirname($this->v) . DS;
 
-		//	set_include_path(dirname($this -> v) . DS . PATH_SEPARATOR . get_include_path());
-		//$old_dir = getcwd();
-		$file_dir = dirname($this -> v) . DS;
 
- 
-			require ($this -> v);
-			$content = ob_get_clean();
- 
-		return $content;
-	}
+        require ($this->v);
+        $content = ob_get_clean();
+
+        return $content;
+    }
 
 }
