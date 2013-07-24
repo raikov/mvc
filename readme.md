@@ -1,4 +1,4 @@
-# Micro MVC - MVC engine for PHP
+# Micro MVC - engine for PHP
 
 
 MicroMVC is the hyper small engine that gives you all the MVC power and a lot of speed.
