@@ -1,0 +1,14 @@
+ 
+### htaccess
+RewriteEngine on
+
+
+#Uncomment bellow and set the name of your sub-folder if you are installing in subfolder
+#RewriteBase /mvc/
+
+  
+#goes to the index.php file
+RewriteCond %{REQUEST_URI} !\.(gif|jpg|jpeg|png|js|css)$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [NC,L]
