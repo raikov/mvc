@@ -9,7 +9,7 @@ No fancy features. The rest is up to you!
 
 
 
-Benchmarks shows it can handle around *300-400 requests per second*
+Benchmarks shows it can handle around **300-400 requests per second**
 
 
 
